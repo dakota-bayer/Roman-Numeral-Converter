@@ -1,0 +1,15 @@
+body{
+    align-items: center;
+}
+
+h1{
+    text-align: center;
+    border: 3px solid green;
+}
+
+form{
+    border: 3px solid red;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
