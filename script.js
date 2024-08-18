@@ -1,64 +1,86 @@
-const input = document.getElementById('number');
-const button = document.getElementById('convert-btn');
-const output = document.getElementById('output');
+const input = document.getElementById("number");
+const button = document.getElementById("convert-btn");
+const output = document.getElementById("output");
 
-const conversionArray = [
-    {
-        value: 1000,
-        character: "M"
-    },
-    {
-        value: 500,
-        character: "D"
-    },
-    {
-        value: 100,
-        character: "C"
-    },
-    {
-        value: 50,
-        character: "L"
-    },
-    {
-        value: 10,
-        character: "X"
-    },
-    {
-        value: 5,
-        character: "V"
-    },
-    {
-        value: 1,
-        character: "I"
-    },
-];
-
-button.addEventListener('click', () => {
-    // Check input
-    const isValid = IsValidInput();
-    if(!isValid){
-        window.alert("not valid");
-        return;
-    }
-
-    // Parse input to int
-    const number = parseInt(input.value);
-    
-    // Convert to roman numeral string
-    const romanNumeral = "roman numeral"
-    // Display roman numeral string
-    output.innerText = romanNumeral;
-
-    console.log(JSON.stringify(conversionArray));
+button.addEventListener("click", () => {
+  output.innerText = ConvertToRomanNumeral(input.value);
 });
 
-function IsValidInput(){
-    const inputText = input.value;
-    const parsedInput = parseInt(inputText);
-
-    if(!input.value || isNaN(parsedInput) || parsedInput < 0){
-        return false;
+input.addEventListener("keydown", (e) => {
+    if(e.key === "Enter"){
+        output.innerText = ConvertToRomanNumeral(input.value);
     }
+});
 
-    return true;
+const ConvertToRomanNumeral = (value) => {
+  // Validate
+  const errorMsg = GetInputError(value);
+  if (errorMsg) {
+    return errorMsg;
+  }
+
+  // Put in thousands form ("XXXX")
+  const inputValueArray = value.split("");
+  while (inputValueArray.length < 4) {
+    inputValueArray.unshift("0");
+  }
+
+  // Get value for each place
+  const thousandsDigit = inputValueArray[0];
+  const hundredsDigit = inputValueArray[1];
+  const tensDigit = inputValueArray[2];
+  const onesDigit = inputValueArray[3];
+
+  // Get roman numeral for each place value
+  const thousandsRomanNumeral = ConvertDigit(thousandsDigit, "", "", "M");
+  const hundredsRomanNumeral = ConvertDigit(hundredsDigit, "M", "D", "C");
+  const tensRomanNumeral = ConvertDigit(tensDigit, "C", "L", "X");
+  const onesRomanNumeral = ConvertDigit(onesDigit, "X", "V", "I");
+
+  // Concatenate each place value for result
+  return (
+    thousandsRomanNumeral +
+    hundredsRomanNumeral +
+    tensRomanNumeral +
+    onesRomanNumeral
+  );
+};
+
+const ConvertDigit = (digit, full, half, single) => {
+  if (digit === "0") {
+    return "";
+  } else if (digit === "4") {
+    return single + half;
+  } else if (digit === "9") {
+    return single + full;
+  } else {
+    let remainder = parseInt(digit);
+    let strNumeral = "";
+    while (remainder > 0) {
+      if (remainder - 5 >= 0) {
+        strNumeral = half;
+        remainder -= 5;
+      } else {
+        strNumeral += single;
+        remainder--;
+      }
+    }
+    return strNumeral;
+  }
 }
+
+const GetInputError = (value) => {
+    const parsedInput = parseInt(value);
+  
+    if (!value || isNaN(parsedInput)) {
+      return "Please enter a valid number";
+    }
+  
+    if (parsedInput < 0) {
+      return "Please enter a number greater than or equal to 1";
+    }
+  
+    if (parsedInput >= 4000) {
+      return "Please enter a number less than or equal to 3999";
+    }
+  }
